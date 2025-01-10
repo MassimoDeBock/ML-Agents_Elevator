@@ -1,30 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Unity.MLAgents;
-using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using UnityEngine;
 
-public class ElevatorAgent : Agent
+public class ElevatorAgent_Two : ElevatorAgent
 {
-    public Elevator elevator;
-
-    [SerializeField]
-    protected BufferSensorComponent m_BufferSensor;
-
-    //[SerializeField] private int maxDecisions = 50;
-
+    [SerializeField] private BufferSensorComponent m_DestinationBuffer;
     public override void Initialize()
     {
-        m_BufferSensor = GetComponent<BufferSensorComponent>();
+
     }
 
-    public override void OnEpisodeBegin()
-    {
-        elevator.Reset();
-    }
-
-    public override void CollectObservations(VectorSensor sensor)
+        public override void CollectObservations(VectorSensor sensor)
     {
 
         sensor.AddObservation(elevator.currentFloor);
@@ -79,50 +66,37 @@ public class ElevatorAgent : Agent
             m_BufferSensor.AppendObservation(new float[] { waiting[i] / maxWaiting, passengers[i] / maxDestination, elevator.building.floors[i].GetTimeNormalized(), maxWaitingTimerEachFloor[i] });
         }
 
-    }
 
-    public override void OnActionReceived(ActionBuffers actions)
-    {
-    }
-
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-        var discreteActionsOut = actionsOut.DiscreteActions;
-        for (int i = 0; i <= 9; i++)
+        List<List<float>> destinations = new List<List<float>>();
+        for (int i = 0; i < elevator.building.floors.Count; i++)
         {
-            if (Input.GetKey((KeyCode)System.Enum.Parse(typeof(KeyCode), "Alpha" + i)))
+            destinations.Add(elevator.building.floors[i].GetPassengerDestinationsCount());
+        }
+
+        //Todo: Potentially improve this
+        //Get the max value of the destinations
+        float maxDestinations = 1;
+        foreach (List<float> dest in destinations)
+        {
+            foreach (float d in dest)
             {
-                discreteActionsOut[0] = i;
-                break;
+                if (d > maxDestinations)
+                {
+                    maxDestinations = d;
+                }
             }
         }
 
-        Debug.Log(discreteActionsOut[0] + " is the chosen floor");
-    }
+        //Normalize the destinations
+        for (int i = 0; i < elevator.building.floors.Count; i++)
+        {
+            for (int j = 0; j < elevator.building.floors.Count; j++)
+            {
+                destinations[i][j] /= maxDestinations;
+            }
 
-    public int GetNextDestination()
-    {
-        return GetStoredActionBuffers().DiscreteActions[0];
-    }
+            m_DestinationBuffer.AppendObservation(destinations[i].ToArray());
+        }
 
-    public void Ponder()
-    {
-        RequestDecision();
-
-        // if (m_TotalDecisions > maxDecisions)
-        // {
-        //     //elevator.PunishForPassengers();
-        //     EndEpisode();
-        //
-        // }
-        // think of the next floor to go to
-
-    }
-
-    public void Failed()
-    {
-        elevator.PunishForPassengers();
-        //AddReward((1-(float)m_TotalDecisions/maxDecisions)*-10000);
-        EndEpisode();
     }
 }

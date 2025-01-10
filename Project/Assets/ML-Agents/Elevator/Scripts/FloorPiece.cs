@@ -8,6 +8,10 @@ public class FloorPiece : MonoBehaviour
     [SerializeField]
     public int floorNumber = 1;
 
+    //Todo: change this to not be a constant
+    [SerializeField]
+    private int maxFloorNumber = 5;
+
     //list of passengers on this floor
     [SerializeField]
     public List<PassengerLogic> passengers = new List<PassengerLogic>();
@@ -108,6 +112,21 @@ public class FloorPiece : MonoBehaviour
             passengers[i].transform.position = new Vector3(x, waitingAreaPosition.y, z);
         }
 
+    }
+
+    public List<float> GetPassengerDestinationsCount()
+    {
+        List<float> destinations = new List<float>();
+        for (int i = 0; i < maxFloorNumber; i++)
+        {
+            destinations.Add(0);
+        }
+        for (int i = 0; i < passengers.Count; i++)
+        {
+            int destination = passengers[i].destinationFloor;
+            destinations[destination]++;
+        }
+        return destinations;
     }
 
     public void CleanFloor()
