@@ -28,7 +28,7 @@ public class BaseElevatorBrain : MonoBehaviour
 
     }
 
-    public virtual void Reward(float reward)
+    public virtual void Reward(string reason, float reward)
     {
 
     }

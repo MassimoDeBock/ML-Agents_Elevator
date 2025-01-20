@@ -312,6 +312,12 @@ MonoBehaviour:
   MaxStep: 0
   elevator: {fileID: 5147089363119084345}
   m_BufferSensor: {fileID: 6794171154729083598}
+  m_Reasons:
+  - Reward Drop off
+  - Reward Pick up
+  - Reward Same Location
+  - Reward Leftover
+  - Bad Destination
   m_DestinationBuffer: {fileID: 946090326062957825}
 --- !u!114 &946090326062957825
 MonoBehaviour:

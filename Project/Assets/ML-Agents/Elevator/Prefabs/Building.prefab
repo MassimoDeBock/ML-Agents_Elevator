@@ -235,6 +235,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5406341294690266268, guid: b42549c39c0ce6f48aa092dbcc1465d4,
         type: 3}
+      propertyPath: m_BehaviorType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5406341294690266268, guid: b42549c39c0ce6f48aa092dbcc1465d4,
+        type: 3}
       propertyPath: m_BrainParameters.VectorObservationSize
       value: 2
       objectReference: {fileID: 0}
@@ -242,6 +247,36 @@ PrefabInstance:
         type: 3}
       propertyPath: m_BrainParameters.NumStackedVectorObservations
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7916242979388835224, guid: b42549c39c0ce6f48aa092dbcc1465d4,
+        type: 3}
+      propertyPath: m_Reasons.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7916242979388835224, guid: b42549c39c0ce6f48aa092dbcc1465d4,
+        type: 3}
+      propertyPath: 'm_Reasons.Array.data[0]'
+      value: Reward Drop off
+      objectReference: {fileID: 0}
+    - target: {fileID: 7916242979388835224, guid: b42549c39c0ce6f48aa092dbcc1465d4,
+        type: 3}
+      propertyPath: 'm_Reasons.Array.data[1]'
+      value: Reward Pick up
+      objectReference: {fileID: 0}
+    - target: {fileID: 7916242979388835224, guid: b42549c39c0ce6f48aa092dbcc1465d4,
+        type: 3}
+      propertyPath: 'm_Reasons.Array.data[2]'
+      value: Reward Same Location
+      objectReference: {fileID: 0}
+    - target: {fileID: 7916242979388835224, guid: b42549c39c0ce6f48aa092dbcc1465d4,
+        type: 3}
+      propertyPath: 'm_Reasons.Array.data[3]'
+      value: Reward Leftover
+      objectReference: {fileID: 0}
+    - target: {fileID: 7916242979388835224, guid: b42549c39c0ce6f48aa092dbcc1465d4,
+        type: 3}
+      propertyPath: 'm_Reasons.Array.data[4]'
+      value: Bad Destination
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

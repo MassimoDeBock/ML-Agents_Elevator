@@ -1,0 +1,8 @@
+Increased pentalty off going to the same floor,
+increased minimum and maximum reward for dropping someone off
+
+decreased batch_size to half
+decreased learning rate to +- half
+increased lambda from 0.85 to 0.92
+
+why? previous versions didn't learn anything

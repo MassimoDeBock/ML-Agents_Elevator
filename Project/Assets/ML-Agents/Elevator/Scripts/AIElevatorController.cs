@@ -29,9 +29,9 @@ public class AIElevatorController : BaseElevatorBrain
         m_Agent.Ponder();
     }
 
-    public override void Reward(float reward)
+    public override void Reward(string reason, float reward)
     {
-        m_Agent.AddReward(reward);
+        m_Agent.AddRewardCustom(reason, reward);
     }
 
     public override int GetNextDestination()

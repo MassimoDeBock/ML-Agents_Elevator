@@ -13,7 +13,6 @@ public class ElevatorAgent_Two : ElevatorAgent
 
         public override void CollectObservations(VectorSensor sensor)
     {
-
         sensor.AddObservation(elevator.currentFloor);
         sensor.AddObservation(elevator.building.floors.Count);
 

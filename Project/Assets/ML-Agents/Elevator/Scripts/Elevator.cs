@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 
-enum ElevatorState
+public enum ElevatorState
 {
     Idle,
     Moving,
@@ -18,6 +19,7 @@ enum ElevatorState
 
 public class Elevator : MonoBehaviour
 {
+
     [SerializeField]
     public int currentFloor = 0;
 
@@ -37,13 +39,13 @@ public class Elevator : MonoBehaviour
     [SerializeField]
     public float doorOpenTime = 1;
 
-    private ElevatorState m_State = ElevatorState.Idle;
+    protected ElevatorState m_State = ElevatorState.Idle;
 
     [SerializeField]
     public float exchangeTime = 1.0f;
 
     [SerializeField]
-    private BaseElevatorBrain m_Brain;
+    protected BaseElevatorBrain m_Brain;
 
     // [SerializeField]
     // public float doorOpenTime = 1;
@@ -60,6 +62,22 @@ public class Elevator : MonoBehaviour
     public List<PassengerLogic> passengers = new List<PassengerLogic>();
 
 
+    public float longestPickupTime = -10.0f;
+
+    public float shortestPickupTime = -10.0f;
+
+    public float totalPickupTime = 0f;
+
+    public int totalPickups = 0;
+
+    public float longestDropoffTime = -10.0f;
+
+    public float shortestDropoffTime = -10.0f;
+
+    public float totalDropoffTime = 0f;
+
+    public int totalDropoffs = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -71,7 +89,7 @@ public class Elevator : MonoBehaviour
 
     }
 
-    void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         switch (m_State)
         {
@@ -120,10 +138,10 @@ public class Elevator : MonoBehaviour
         m_State = ElevatorState.Idle;
     }
 
-    [CanBeNull] private PassengerLogic m_MovingPassenger;
+    [CanBeNull] protected PassengerLogic m_MovingPassenger;
 
 
-    private void FlowOut()
+    protected virtual void FlowOut()
     {
         var pplInElevator = passengers.Count;
         if (pplInElevator < 1)
@@ -155,9 +173,12 @@ public class Elevator : MonoBehaviour
         if(m_MovingPassenger.ExitElevator(Time.deltaTime))
         {
             RemoveFromElevator(m_MovingPassenger);
-            float reward = 10000.0f-Mathf.Pow(m_MovingPassenger.m_WaitTime,2);
-            reward = Mathf.Min(30.0f,reward);
-            m_Brain.Reward(reward);
+            float reward = 15000.0f-Mathf.Pow(m_MovingPassenger.m_WaitTime,2);
+            reward = Mathf.Min(50.0f,reward);
+            m_Brain.Reward("Reward Drop off",reward);
+
+            EvaluateDropOff(m_MovingPassenger.m_WaitTime);
+
 
             //destroy the passenger
             Destroy(m_MovingPassenger.gameObject);
@@ -169,7 +190,24 @@ public class Elevator : MonoBehaviour
         }
     }
 
-    private void FlowIn()
+    protected void EvaluateDropOff(float waitTime)
+    {
+        //update the longest and shortest dropoff time
+        if (longestDropoffTime < waitTime || longestDropoffTime < 0)
+        {
+            longestDropoffTime = waitTime;
+        }
+
+        if (shortestDropoffTime > waitTime || shortestDropoffTime < 0)
+        {
+            shortestDropoffTime = waitTime;
+        }
+
+        totalDropoffTime += waitTime;
+        totalDropoffs += 1;
+    }
+
+    protected virtual void FlowIn()
     {
         var pplOnFloor = building.floors[currentFloor].passengers.Count;
         if (pplOnFloor < 1)
@@ -185,8 +223,9 @@ public class Elevator : MonoBehaviour
             {
                 if (!passenger.IsDesiredFloor(currentFloor) && !passenger.isLocked)
                 {
-                    m_Brain.Reward(20.0f);
                     m_MovingPassenger = passenger;
+                    m_Brain.Reward("Reward Pick up",20.0f);
+                    EvaluatePickUp(m_MovingPassenger.m_WaitTime);
                     m_MovingPassenger.StartMovingToElevator(GetRandomSpotInArea(), exchangeTime);
                     break;
                 }
@@ -208,30 +247,71 @@ public class Elevator : MonoBehaviour
         }
     }
 
-    private void StartClosingDoor()
+    protected void EvaluatePickUp(float movingPassengerWaitTime)
+    {
+        //update the longest and shortest pickup time
+        if (longestPickupTime < movingPassengerWaitTime || longestPickupTime < 0)
+        {
+            longestPickupTime = movingPassengerWaitTime;
+        }
+
+        if (shortestPickupTime > movingPassengerWaitTime || shortestPickupTime < 0)
+        {
+            shortestPickupTime = movingPassengerWaitTime;
+        }
+
+        totalPickupTime += movingPassengerWaitTime;
+        totalPickups += 1;
+    }
+
+    protected void StartClosingDoor()
     {
         m_State = ElevatorState.DoorClosing;
         m_Brain.Ponder();
     }
 
 
-    private void Idle()
+    protected virtual void Idle()
     {
         ChooseNextDestination();
         m_State = ElevatorState.Moving;
     }
 
-    [SerializeField] private Door m_Door;
+    [SerializeField] protected Door m_Door;
 
-    private void OpenDoor()
+    protected void OpenDoor()
     {
         if (m_Door.Open())
         {
+            if (!HasValidTargets())
+            {
+                m_Brain.Reward("Bad Destination",-500.0f);
+            }
+            //check if theres any valid moving passenger
             m_State = ElevatorState.FlowOut;
         }
     }
 
-    private void CloseDoor()
+    protected bool HasValidTargets()
+    {
+        //check if theres anyone on this floor
+        if (building.floors[currentFloor].passengers.Count > 0)
+        {
+            return true;
+        }
+        //loop over all people in the elevator and check if they want to get out on this floor
+        foreach (var passenger in passengers)
+        {
+            if (passenger.IsDesiredFloor(currentFloor))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected void CloseDoor()
     {
         if (m_Door.Close())
         {
@@ -239,7 +319,7 @@ public class Elevator : MonoBehaviour
         }
     }
 
-    private void MoveElevator()
+    protected void MoveElevator()
     {
         //move the elevator to the destination floor
         var pos = transform.position;
@@ -268,7 +348,7 @@ public class Elevator : MonoBehaviour
         passengers.Remove(passenger);
     }
 
-    private void MovePassengerToElevator(PassengerLogic passenger)
+    protected void MovePassengerToElevator(PassengerLogic passenger)
     {
         if (passengerArea == null && passenger == null)
         {
@@ -281,7 +361,7 @@ public class Elevator : MonoBehaviour
         passenger.transform.parent = passengerArea.transform;
     }
 
-    private Vector3 GetRandomSpotInArea()
+    protected Vector3 GetRandomSpotInArea()
     {
         const float passengerSize = 1.2f;
         const float offset = passengerSize * 2.0f;
@@ -292,7 +372,7 @@ public class Elevator : MonoBehaviour
         return loc;
     }
 
-    private void ChooseNextDestination()
+    protected virtual void ChooseNextDestination()
     {
         // check if brain is null
         if (m_Brain == null)
@@ -316,7 +396,7 @@ public class Elevator : MonoBehaviour
         }else if (destinationFloor == currentFloor)
         {
             // m_Brain.Failed();
-            m_Brain.Reward(-100.0f);
+            m_Brain.Reward("Reward Same Location",-2000.0f);
         }
 
     }
@@ -336,27 +416,37 @@ public class Elevator : MonoBehaviour
         {
             floor.CleanFloor();
         }
+
+        //reset the shortest longest and total wait time
+        longestPickupTime = -10.0f;
+        shortestPickupTime = -10.0f;
+        totalPickupTime = 0f;
+        totalPickups = 0;
+        longestDropoffTime = -10.0f;
+        shortestDropoffTime = -10.0f;
+        totalDropoffTime = 0f;
+        totalDropoffs = 0;
     }
 
     //go over all passengers on the floor and in the elevator, punish the brain for each passenger
 
-    public void PunishForPassengers()
+    public virtual void PunishForPassengers()
     {
         foreach (var floor in building.floors)
         {
             foreach (var passenger in floor.passengers)
             {
-                m_Brain.Reward(-Mathf.Pow(passenger.m_WaitTime,1.2f));
+                m_Brain.Reward("Reward Leftover",-Mathf.Pow(passenger.m_WaitTime,1.2f));
             }
         }
 
         foreach (var passenger in passengers)
         {
-            m_Brain.Reward(-passenger.m_WaitTime);
+            m_Brain.Reward("Reward Leftover",-passenger.m_WaitTime);
         }
     }
 
-    public void FailIteration()
+    public virtual void FailIteration()
     {
         m_Brain.Failed();
     }
