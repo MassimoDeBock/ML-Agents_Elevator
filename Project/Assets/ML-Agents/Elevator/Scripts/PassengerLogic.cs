@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 enum PassengerState
 {
@@ -27,9 +28,18 @@ public class PassengerLogic : MonoBehaviour
 
     public float movement_timer = 0.0f;
 
-    [SerializeField]
+    private bool m_HasPriority = false;
+
+    [FormerlySerializedAs("hat")] [SerializeField]
     //hat color piece
-    public GameObject hat;
+    public GameObject destinationHat;
+
+    public GameObject hatBrim;
+
+    public GameObject mainHat;
+
+    [SerializeField]
+    private Material silverMaterial;
 
     public bool isLocked = false;
 
@@ -84,7 +94,7 @@ public class PassengerLogic : MonoBehaviour
 
     void ChangeColorHat()
     {
-        Renderer hatRenderer = hat.GetComponent<Renderer>();
+        Renderer hatRenderer = destinationHat.GetComponent<Renderer>();
         Color[] floorColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan , Color.black, Color.gray};
 
         if (destinationFloor >= 0 && destinationFloor < floorColors.Length)
@@ -160,4 +170,24 @@ public class PassengerLogic : MonoBehaviour
         return Mathf.Max(m_WaitTime / m_MaxWaitTime, 1.0f);
     }
 
+    public bool HasPriority()
+    {
+        return m_HasPriority;
+    }
+
+    public void SetPriority(bool priority)
+    {
+        m_HasPriority = priority;
+
+        //if its has priority make the hat and brim silver (slightly reflective)
+
+        if (m_HasPriority)
+        {
+            hatRenderer = mainHat.GetComponent<Renderer>();
+            hatRenderer.material = silverMaterial;
+            hatRenderer = hatBrim.GetComponent<Renderer>();
+            hatRenderer.material = silverMaterial;
+        }
+
+    }
 }

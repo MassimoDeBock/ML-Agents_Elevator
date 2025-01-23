@@ -208,8 +208,15 @@ public class ElevatorAgent : Agent
         //loop over each floor
         for (int i = 0; i < elevator.building.floors.Count; i++)
         {
+            // people amount waiting (normalized), how many people want to go here (normalized), longest time someone on this floor has been waiting (normalized), how long someone in the elevator has been waiting to go here(normalized)
             m_BufferSensor.AppendObservation(new float[] { waiting[i] / maxWaiting, passengers[i] / maxDestination, elevator.building.floors[i].GetTimeNormalized(), maxWaitingTimerEachFloor[i] });
         }
+
+        ExtraObservations();
+    }
+
+    protected virtual void ExtraObservations()
+    {
 
     }
 

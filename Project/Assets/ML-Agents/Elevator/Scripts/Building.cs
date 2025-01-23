@@ -20,6 +20,8 @@ public class Building : MonoBehaviour
 
     private float m_ExtraPassengerChance = 0.15f;
 
+    private float m_VIPPassengerChance = 0.00f;
+
     //prefab for the passenger
     [SerializeField]
     public GameObject passengerPrefab;
@@ -70,5 +72,9 @@ public class Building : MonoBehaviour
         floors[floor].AddPassenger(passenger);
         passenger.SetDestination(destination);
         passenger.elevator = elevators[0];
+        if(m_VIPPassengerChance > Random.value)
+        {
+            passenger.SetPriority(true);
+        }
     }
 }

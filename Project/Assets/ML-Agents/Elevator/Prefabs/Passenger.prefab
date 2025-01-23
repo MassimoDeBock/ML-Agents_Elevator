@@ -339,7 +339,10 @@ MonoBehaviour:
   m_FullRedWaitTime: 100
   m_MaxWaitTime: 100
   movement_timer: 0
-  hat: {fileID: 5012932249702847509}
+  destinationHat: {fileID: 5012932249702847509}
+  hatBrim: {fileID: 1243750590315870338}
+  mainHat: {fileID: 6495627562816767717}
+  silverMaterial: {fileID: 2100000, guid: ef37b4b2c1257524798b9d0ba5735e3c, type: 2}
   isLocked: 0
   MainBody: {fileID: 8800429464066275616}
   elevator: {fileID: 0}

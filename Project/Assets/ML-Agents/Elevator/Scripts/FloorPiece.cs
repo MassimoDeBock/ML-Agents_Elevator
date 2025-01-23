@@ -139,4 +139,17 @@ public class FloorPiece : MonoBehaviour
 
         WaitTime = 0.0f;
     }
+
+    public int PriorityPassengerCount()
+    {
+        int count = 0;
+        foreach (PassengerLogic passenger in passengers)
+        {
+            if (passenger.HasPriority())
+            {
+                count++;
+            }
+        }
+        return count;
+    }
 }

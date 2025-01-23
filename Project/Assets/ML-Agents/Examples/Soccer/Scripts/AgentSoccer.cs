@@ -18,6 +18,7 @@ public class AgentSoccer : Agent
     // * wall
     // * own teammate
     // * opposing player
+    private GameObject m_Ball;
 
     public enum Position
     {
@@ -143,7 +144,6 @@ public class AgentSoccer : Agent
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
-
     {
 
         if (position == Position.Goalie)

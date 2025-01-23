@@ -11,6 +11,7 @@ public class ElevatorReimagined : Elevator
 {
     [SerializeField] private int steps = 0;
     [SerializeField] private int maxSteps = 1000;
+    [SerializeField] private bool m_HasPriority = false;
     protected override void FixedUpdate()
     {
         switch (m_State)
@@ -57,6 +58,10 @@ public class ElevatorReimagined : Elevator
             foreach (var passenger in floor.passengers)
             {
                 m_Brain.Reward("Waiting Reward", PunishAmount * 1.3f * (1 +passenger.m_WaitTime/50.0f));
+                if (m_HasPriority && passenger.HasPriority())
+                {
+                    m_Brain.Reward("Waiting Reward VIP", PunishAmount * 13f * (1 +passenger.m_WaitTime/50.0f));
+                }
             }
         }
 
@@ -64,6 +69,10 @@ public class ElevatorReimagined : Elevator
         foreach (var passenger in passengers)
         {
             m_Brain.Reward("Waiting Reward", PunishAmount * (1 +passenger.m_WaitTime/50.0f) );
+            if (m_HasPriority && passenger.HasPriority())
+            {
+                m_Brain.Reward("Waiting Reward VIP", PunishAmount * 10f * (1 +passenger.m_WaitTime/50.0f));
+            }
         }
     }
 
@@ -101,6 +110,10 @@ public class ElevatorReimagined : Elevator
             RemoveFromElevator(m_MovingPassenger);
             var reward = 50.0f;
             m_Brain.Reward("Reward Drop off",reward);
+            if (m_HasPriority && m_MovingPassenger.HasPriority())
+            {
+                m_Brain.Reward("Reward Drop off VIP",reward *10);
+            }
 
             EvaluateDropOff(m_MovingPassenger.m_WaitTime);
 
@@ -111,6 +124,50 @@ public class ElevatorReimagined : Elevator
 
             // building.floors[currentFloor].AddPassenger(m_MovingPassenger);
             // m_MovingPassenger.timer = 20.0f;
+            m_MovingPassenger = null;
+        }
+    }
+
+    protected override void FlowIn()
+    {
+        var pplOnFloor = building.floors[currentFloor].passengers.Count;
+        if (pplOnFloor < 1)
+        {
+            StartClosingDoor();
+            return;
+        }
+
+        if (m_MovingPassenger == null)
+        {
+            //find a passenger to move
+            foreach (var passenger in building.floors[currentFloor].passengers)
+            {
+                if (!passenger.IsDesiredFloor(currentFloor) && !passenger.isLocked)
+                {
+                    m_MovingPassenger = passenger;
+                    m_Brain.Reward("Reward Pick up",20.0f);
+                    if (m_HasPriority && m_MovingPassenger.HasPriority())
+                    {
+                        m_Brain.Reward("Reward Pick up VIP",200.0f);
+                    }
+                    EvaluatePickUp(m_MovingPassenger.m_WaitTime);
+                    m_MovingPassenger.StartMovingToElevator(GetRandomSpotInArea(), exchangeTime);
+                    break;
+                }
+            }
+        }
+
+        if(m_MovingPassenger == null)
+        {
+            Debug.Log("No valid passengers to move");
+            StartClosingDoor();
+            return;
+        }
+
+        if(m_MovingPassenger.MoveInElevator(Time.deltaTime))
+        {
+            AddToElevator(m_MovingPassenger);
+            building.floors[currentFloor].RemovePassenger(m_MovingPassenger);
             m_MovingPassenger = null;
         }
     }
