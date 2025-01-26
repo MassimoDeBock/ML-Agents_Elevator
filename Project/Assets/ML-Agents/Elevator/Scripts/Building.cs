@@ -18,9 +18,9 @@ public class Building : MonoBehaviour
 
     private float m_AddPassengerTimer = 0.0f;
 
-    private float m_ExtraPassengerChance = 0.15f;
+    [SerializeField] private float m_ExtraPassengerChance = 0.15f;
 
-    private float m_VIPPassengerChance = 0.00f;
+    [SerializeField] private float m_VIPPassengerChance = 0.00f;
 
     //prefab for the passenger
     [SerializeField]

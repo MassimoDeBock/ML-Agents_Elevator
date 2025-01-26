@@ -95,7 +95,7 @@ public class PassengerLogic : MonoBehaviour
     void ChangeColorHat()
     {
         Renderer hatRenderer = destinationHat.GetComponent<Renderer>();
-        Color[] floorColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan , Color.black, Color.gray};
+        Color[] floorColors = { Color.red, Color.blue, Color.green, Color.yellow, new Color(1.0f, 0.4f, 0.2f), Color.cyan , Color.black, Color.gray};
 
         if (destinationFloor >= 0 && destinationFloor < floorColors.Length)
         {

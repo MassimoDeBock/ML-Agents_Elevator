@@ -87,7 +87,7 @@ public class FloorPiece : MonoBehaviour
     public void ChangeColorPlate()
     {
         Renderer hatRenderer = colorPlate.GetComponent<Renderer>();
-        Color[] floorColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.cyan , Color.black, Color.gray};
+        Color[] floorColors = { Color.red, Color.blue, Color.green, Color.yellow, new Color(1.0f, 0.4f, 0.2f), Color.cyan , Color.black, Color.gray};
 
         hatRenderer.material.color = floorColors[floorNumber % floorColors.Length];
     }

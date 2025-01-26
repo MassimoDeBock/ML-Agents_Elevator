@@ -2,7 +2,7 @@ cd /d E:\Unity\ml-agents
 
 conda activate mlagents
 
-mlagents-learn config/ControlElevator.yaml --run-id=Elevator_Three --force
+mlagents-learn config/ControlElevator.yaml --run-id=Elevator_Four --force
 
 
 

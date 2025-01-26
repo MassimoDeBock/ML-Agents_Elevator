@@ -9,6 +9,8 @@ using Random = UnityEngine.Random;
 
 public class ElevatorReimagined : Elevator
 {
+    [SerializeField] private int repeatCount = 0;
+    [SerializeField] private int maxRepeat = 10;
     [SerializeField] private int steps = 0;
     [SerializeField] private int maxSteps = 1000;
     [SerializeField] private bool m_HasPriority = false;
@@ -46,6 +48,7 @@ public class ElevatorReimagined : Elevator
         if (steps > maxSteps)
         {
             steps = 0;
+            repeatCount = 0;
             m_Brain.Failed();
         }
     }
@@ -189,7 +192,13 @@ public class ElevatorReimagined : Elevator
             // m_Brain.Failed();
             m_Brain.Reward("Reward Same Location",-2000.0f);
             steps--;
-
+            repeatCount++;
+            if (repeatCount > maxRepeat)
+            {
+                repeatCount = 0;
+                m_Brain.Reward("Reward Repeat",-200000.0f);
+                m_Brain.Failed();
+            }
         }
 
     }

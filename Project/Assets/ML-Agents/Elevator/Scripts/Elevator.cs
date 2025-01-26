@@ -285,7 +285,7 @@ public class Elevator : MonoBehaviour
         {
             if (!HasValidTargets())
             {
-                m_Brain.Reward("Bad Destination",-500.0f);
+                m_Brain.Reward("Bad Destination",-5000.0f);
             }
             //check if theres any valid moving passenger
             m_State = ElevatorState.FlowOut;
